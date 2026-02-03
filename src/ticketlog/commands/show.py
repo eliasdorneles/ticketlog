@@ -1,7 +1,7 @@
 """Show command implementation."""
 
 from ..storage import Storage
-from ..utils import format_task_detail, print_json, console
+from ..utils import format_task_detail, print_json, colorize, RED
 
 
 def show_task(args) -> None:
@@ -10,7 +10,7 @@ def show_task(args) -> None:
     task = storage.get_task_by_id(args.id)
 
     if not task:
-        console.print(f"[red]Error: Task {args.id} not found[/red]")
+        print(colorize(f"Error: Task {args.id} not found", RED))
         return
 
     # Output

@@ -1,7 +1,7 @@
 """Dependency command implementation."""
 
 from ..storage import Storage
-from ..utils import print_json, console
+from ..utils import print_json, colorize, bold, dim, RED, GREEN, YELLOW, CYAN
 
 
 def detect_cycle(task_id: str, depends_on: str, all_tasks: list) -> bool:
@@ -43,17 +43,17 @@ def add_dependency(args) -> None:
     depends_on = storage.get_task_by_id(args.depends_on_id)
 
     if not task:
-        console.print(f"[red]Error: Task {args.task_id} not found[/red]")
+        print(colorize(f"Error: Task {args.task_id} not found", RED))
         return
 
     if not depends_on:
-        console.print(f"[red]Error: Task {args.depends_on_id} not found[/red]")
+        print(colorize(f"Error: Task {args.depends_on_id} not found", RED))
         return
 
     # Check for cycles
     all_tasks = storage.get_all_tasks()
     if detect_cycle(args.task_id, args.depends_on_id, all_tasks):
-        console.print(f"[red]Error: Adding this dependency would create a cycle[/red]")
+        print(colorize("Error: Adding this dependency would create a cycle", RED))
         return
 
     # Add dependency if not already present
@@ -65,9 +65,9 @@ def add_dependency(args) -> None:
         if args.json:
             print_json(updated_task.to_dict())
         else:
-            console.print(f"[green]Added dependency: {args.task_id} depends on {args.depends_on_id}[/green]")
+            print(colorize(f"Added dependency: {args.task_id} depends on {args.depends_on_id}", GREEN))
     else:
-        console.print(f"[yellow]Dependency already exists[/yellow]")
+        print(colorize("Dependency already exists", YELLOW))
 
 
 def remove_dependency(args) -> None:
@@ -76,7 +76,7 @@ def remove_dependency(args) -> None:
     task = storage.get_task_by_id(args.task_id)
 
     if not task:
-        console.print(f"[red]Error: Task {args.task_id} not found[/red]")
+        print(colorize(f"Error: Task {args.task_id} not found", RED))
         return
 
     # Remove dependency
@@ -88,9 +88,9 @@ def remove_dependency(args) -> None:
         if args.json:
             print_json(updated_task.to_dict())
         else:
-            console.print(f"[green]Removed dependency: {args.task_id} no longer depends on {args.depends_on_id}[/green]")
+            print(colorize(f"Removed dependency: {args.task_id} no longer depends on {args.depends_on_id}", GREEN))
     else:
-        console.print(f"[yellow]Dependency does not exist[/yellow]")
+        print(colorize("Dependency does not exist", YELLOW))
 
 
 def list_dependencies(args) -> None:
@@ -99,7 +99,7 @@ def list_dependencies(args) -> None:
     task = storage.get_task_by_id(args.task_id)
 
     if not task:
-        console.print(f"[red]Error: Task {args.task_id} not found[/red]")
+        print(colorize(f"Error: Task {args.task_id} not found", RED))
         return
 
     # Find tasks that depend on this task (blocked by this)
@@ -114,24 +114,24 @@ def list_dependencies(args) -> None:
         }
         print_json(output)
     else:
-        console.print(f"\n[bold]Dependencies for {task.id}:[/bold]")
+        print(f"\n{bold(f'Dependencies for {task.id}:')}")
 
         if task.dependencies:
-            console.print(f"\n[cyan]Depends on (blocks this task):[/cyan]")
+            print(f"\n{colorize('Depends on (blocks this task):', CYAN)}")
             for dep_id in task.dependencies:
                 dep_task = storage.get_task_by_id(dep_id)
                 if dep_task:
-                    console.print(f"  - {dep_id}: {dep_task.title} [{dep_task.status}]")
+                    print(f"  - {dep_id}: {dep_task.title} [{dep_task.status}]")
                 else:
-                    console.print(f"  - {dep_id}: [red](not found)[/red]")
+                    print(f"  - {dep_id}: {colorize('(not found)', RED)}")
         else:
-            console.print(f"\n[dim]No dependencies[/dim]")
+            print(f"\n{dim('No dependencies')}")
 
         if blocked_by_this:
-            console.print(f"\n[cyan]Blocks these tasks:[/cyan]")
+            print(f"\n{colorize('Blocks these tasks:', CYAN)}")
             for blocked_task in blocked_by_this:
-                console.print(f"  - {blocked_task.id}: {blocked_task.title} [{blocked_task.status}]")
+                print(f"  - {blocked_task.id}: {blocked_task.title} [{blocked_task.status}]")
         else:
-            console.print(f"\n[dim]Does not block any tasks[/dim]")
+            print(f"\n{dim('Does not block any tasks')}")
 
-        console.print()
+        print()

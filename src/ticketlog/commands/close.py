@@ -1,7 +1,7 @@
 """Close command implementation."""
 
 from ..storage import Storage
-from ..utils import print_json, console
+from ..utils import print_json, colorize, RED, GREEN
 
 
 def close_tasks(args) -> None:
@@ -13,7 +13,7 @@ def close_tasks(args) -> None:
         task = storage.get_task_by_id(task_id)
 
         if not task:
-            console.print(f"[red]Error: Task {task_id} not found[/red]")
+            print(colorize(f"Error: Task {task_id} not found", RED))
             continue
 
         # Update to closed status
@@ -26,6 +26,6 @@ def close_tasks(args) -> None:
         print_json([t.to_dict() for t in closed])
     else:
         if len(closed) == 1:
-            console.print(f"[green]Closed task {closed[0].id}[/green]")
+            print(colorize(f"Closed task {closed[0].id}", GREEN))
         elif closed:
-            console.print(f"[green]Closed {len(closed)} tasks[/green]")
+            print(colorize(f"Closed {len(closed)} tasks", GREEN))

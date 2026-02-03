@@ -2,7 +2,7 @@
 
 from ..models import Task
 from ..storage import Storage
-from ..utils import print_json, parse_priority, console
+from ..utils import print_json, parse_priority, colorize, GREEN
 
 
 def create_task(args) -> None:
@@ -38,4 +38,4 @@ def create_task(args) -> None:
     if args.json:
         print_json(task.to_dict())
     else:
-        console.print(f"[green]Created task {task.id}[/green]")
+        print(colorize(f"Created task {task.id}", GREEN))

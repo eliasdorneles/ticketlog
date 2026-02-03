@@ -2,12 +2,38 @@
 
 import json
 from typing import Any
-from rich.console import Console
-from rich.table import Table
 from .models import Task
 
 
-console = Console()
+# ANSI color codes
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+
+# Colors
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN = "\033[36m"
+WHITE = "\033[37m"
+BRIGHT_BLUE = "\033[94m"
+
+
+def colorize(text: str, color: str) -> str:
+    """Wrap text in ANSI color codes."""
+    return f"{color}{text}{RESET}"
+
+
+def bold(text: str) -> str:
+    """Make text bold."""
+    return f"{BOLD}{text}{RESET}"
+
+
+def dim(text: str) -> str:
+    """Make text dim."""
+    return f"{DIM}{text}{RESET}"
 
 
 def format_json(data: Any) -> str:
@@ -40,86 +66,85 @@ def parse_priority(value: str) -> int:
 
 
 def format_table(tasks: list[Task]) -> None:
-    """Display tasks as a formatted table."""
+    """Display tasks in condensed format with Unicode icons."""
     if not tasks:
-        console.print("[yellow]No tasks found[/yellow]")
+        print(colorize("No tasks found", YELLOW))
         return
 
-    table = Table(show_header=True, header_style="bold cyan")
-    table.add_column("ID", style="bright_blue", width=8)
-    table.add_column("Title", style="white", min_width=20, no_wrap=False)
-    table.add_column("Type", width=8)
-    table.add_column("Status", width=12)
-    table.add_column("Priority", width=8)
-    table.add_column("Assignee", width=12)
-    table.add_column("Labels", width=15)
+    # Status icons with colors
+    STATUS_ICONS = {
+        "open": ("○", YELLOW),
+        "in_progress": ("◐", BLUE),
+        "to_review": ("◑", MAGENTA),
+        "closed": ("✓", GREEN)
+    }
+
+    # Priority colors
+    PRIORITY_COLORS = {
+        0: RED,
+        1: YELLOW,
+        2: WHITE,
+        3: DIM,
+        4: DIM
+    }
 
     for task in tasks:
-        # Color code status
-        status_color = {
-            "open": "yellow",
-            "in_progress": "blue",
-            "to_review": "magenta",
-            "closed": "green"
-        }.get(task.status, "white")
+        # Get status icon and color
+        icon, status_color = STATUS_ICONS.get(task.status, ("?", WHITE))
+        colored_icon = colorize(icon, status_color)
 
-        # Color code priority
-        priority_color = {
-            0: "red",
-            1: "yellow",
-            2: "white",
-            3: "dim",
-            4: "dim"
-        }.get(task.priority, "white")
+        # Get priority with color
+        priority_text = format_priority(task.priority)
+        priority_color = PRIORITY_COLORS.get(task.priority, WHITE)
+        colored_priority = colorize(priority_text, priority_color)
 
-        table.add_row(
-            task.id,
-            task.title,
-            task.type,
-            f"[{status_color}]{task.status}[/{status_color}]",
-            f"[{priority_color}]{format_priority(task.priority)}[/{priority_color}]",
-            task.assignee or "-",
-            ", ".join(task.labels) if task.labels else "-"
-        )
+        # ID in bright blue
+        colored_id = colorize(task.id, BRIGHT_BLUE)
 
-    console.print(table)
+        # Type in dim
+        type_text = f"[{task.type}]"
+        colored_type = dim(type_text)
+
+        # Format: <icon> <id> <priority> <title> [<type>]
+        print(f"{colored_icon} {colored_id} {colored_priority} {task.title} {colored_type}")
 
 
 def format_task_detail(task: Task) -> None:
     """Display detailed task information."""
-    console.print(f"\n[bold cyan]{task.id}[/bold cyan]: [bold]{task.title}[/bold]")
-    console.print(f"[dim]Created: {task.created_at}[/dim]")
-    console.print(f"[dim]Updated: {task.updated_at}[/dim]")
+    print(f"\n{colorize(task.id, CYAN)}{bold(':')}{bold(' ')}{bold(task.title)}")
+    print(dim(f"Created: {task.created_at}"))
+    print(dim(f"Updated: {task.updated_at}"))
     if task.closed_at:
-        console.print(f"[dim]Closed: {task.closed_at}[/dim]")
+        print(dim(f"Closed: {task.closed_at}"))
 
-    console.print(f"\nType:     {task.type}")
-    console.print(f"Status:   [{_status_color(task.status)}]{task.status}[/{_status_color(task.status)}]")
-    console.print(f"Priority: {format_priority(task.priority)}")
-    console.print(f"Assignee: {task.assignee or '-'}")
+    print(f"\nType:     {task.type}")
+    status_color = _status_color_code(task.status)
+    print(f"Status:   {colorize(task.status, status_color)}")
+    print(f"Priority: {format_priority(task.priority)}")
+    print(f"Assignee: {task.assignee or '-'}")
 
     if task.labels:
-        console.print(f"Labels:   {', '.join(task.labels)}")
+        print(f"Labels:   {', '.join(task.labels)}")
 
     if task.description:
-        console.print(f"\n[bold]Description:[/bold]\n{task.description}")
+        print(f"\n{bold('Description:')}\n{task.description}")
 
     if task.notes:
-        console.print(f"\n[bold]Notes:[/bold]\n{task.notes}")
+        print(f"\n{bold('Notes:')}\n{task.notes}")
 
     if task.dependencies:
-        console.print(f"\n[bold]Dependencies:[/bold]")
+        print(f"\n{bold('Dependencies:')}")
         for dep_id in task.dependencies:
-            console.print(f"  - {dep_id}")
+            print(f"  - {dep_id}")
 
-    console.print()
+    print()
 
 
-def _status_color(status: str) -> str:
-    """Get color for status."""
+def _status_color_code(status: str) -> str:
+    """Get ANSI color code for status."""
     return {
-        "open": "yellow",
-        "in_progress": "blue",
-        "to_review": "magenta",
-        "closed": "green"
-    }.get(status, "white")
+        "open": YELLOW,
+        "in_progress": BLUE,
+        "to_review": MAGENTA,
+        "closed": GREEN
+    }.get(status, WHITE)

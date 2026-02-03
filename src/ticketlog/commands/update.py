@@ -1,7 +1,7 @@
 """Update command implementation."""
 
 from ..storage import Storage
-from ..utils import print_json, parse_priority, console
+from ..utils import print_json, parse_priority, colorize, RED, GREEN
 
 
 def update_task(args) -> None:
@@ -10,7 +10,7 @@ def update_task(args) -> None:
     task = storage.get_task_by_id(args.id)
 
     if not task:
-        console.print(f"[red]Error: Task {args.id} not found[/red]")
+        print(colorize(f"Error: Task {args.id} not found", RED))
         return
 
     # Build update dict
@@ -60,4 +60,4 @@ def update_task(args) -> None:
     if args.json:
         print_json(updated_task.to_dict())
     else:
-        console.print(f"[green]Updated task {updated_task.id}[/green]")
+        print(colorize(f"Updated task {updated_task.id}", GREEN))
