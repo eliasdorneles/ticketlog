@@ -8,6 +8,7 @@ from .commands.show import show_task
 from .commands.update import update_task
 from .commands.close import close_tasks
 from .commands.ready import ready_tasks
+from .commands.clean import clean_log
 from .commands.dep import add_dependency, remove_dependency, list_dependencies
 
 
@@ -95,6 +96,10 @@ def main():
     dep_list_parser.add_argument("task_id", help="Task ID")
     dep_list_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # Clean command
+    clean_parser = subparsers.add_parser("clean", help="Deduplicate the log file")
+    clean_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -116,6 +121,8 @@ def main():
             close_tasks(args)
         elif args.command == "ready":
             ready_tasks(args)
+        elif args.command == "clean":
+            clean_log(args)
         elif args.command == "dep":
             if not args.dep_command:
                 dep_parser.print_help()
