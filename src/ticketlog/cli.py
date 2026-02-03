@@ -1,4 +1,4 @@
-"""Command-line interface for tasklog."""
+"""Command-line interface for ticketlog."""
 
 import argparse
 import sys

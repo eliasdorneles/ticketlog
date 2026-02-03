@@ -1,4 +1,4 @@
-"""Entry point for running tasklog as a module."""
+"""Entry point for running ticketlog as a module."""
 
 from .cli import main
 

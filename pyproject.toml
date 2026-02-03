@@ -1,5 +1,5 @@
 [project]
-name = "tasklog"
+name = "ticketlog"
 version = "0.1.0"
 description = "Lightweight task/issue tracking tool with JSON Lines storage"
 readme = "README.md"
@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.scripts]
-tl = "tasklog.cli:main"
+tl = "ticketlog.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.8.15,<0.9.0"]

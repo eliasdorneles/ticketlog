@@ -1,11 +1,11 @@
-# Tasklog
+# Ticketlog
 
 Lightweight task/issue tracking tool with JSON Lines storage. No daemon, no database - all operations in-memory.
 
 ## Installation
 
 ```bash
-cd tasklog
+cd ticketlog
 uv sync
 uv pip install -e .
 ```
@@ -110,7 +110,7 @@ tl create "New task" --json
 
 ## Data Model
 
-Tasks are stored in `tasklog.jl` (JSON Lines format) in the current directory.
+Tasks are stored in `ticketlog.jl` (JSON Lines format) in the current directory.
 
 Each task has:
 - `id`: Auto-incrementing ID (tl-1, tl-2, ...)
@@ -174,11 +174,11 @@ tl ready  # Now shows tl-2 (Implement API)
 
 Project structure:
 ```
-tasklog/
+ticketlog/
 ├── pyproject.toml
 ├── README.md
 └── src/
-    └── tasklog/
+    └── ticketlog/
         ├── __init__.py
         ├── __main__.py
         ├── cli.py          # CLI argument parsing

@@ -9,7 +9,7 @@ from .models import Task
 class Storage:
     """Manages task storage in JSON Lines format."""
 
-    def __init__(self, filepath: str = "tasklog.jl"):
+    def __init__(self, filepath: str = "ticketlog.jl"):
         self.filepath = Path(filepath)
         self._next_id: Optional[int] = None
 
