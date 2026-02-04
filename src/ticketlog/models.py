@@ -1,25 +1,26 @@
 """Task data model and validation."""
 
+from dataclasses import dataclass, field, replace, asdict
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
 
 
-class Task(BaseModel):
+@dataclass
+class Task:
     """Task model with validation."""
 
     id: str
     title: str
+    created_at: str
+    updated_at: str
     description: str = ""
     type: str = "task"  # task, bug, feature, epic, chore
     status: str = "open"  # open, in_progress, to_review, closed
     priority: int = 2  # 0-4 (0=highest/critical, 2=medium, 4=backlog)
     assignee: Optional[str] = None
-    labels: list[str] = Field(default_factory=list)
-    created_at: str
-    updated_at: str
+    labels: list[str] = field(default_factory=list)
     closed_at: Optional[str] = None
-    dependencies: list[str] = Field(default_factory=list)  # task IDs this task depends on
+    dependencies: list[str] = field(default_factory=list)  # task IDs this task depends on
     notes: str = ""
 
     @classmethod
@@ -43,11 +44,11 @@ class Task(BaseModel):
         if kwargs.get("status") == "closed" and self.status != "closed":
             update_data["closed_at"] = now
 
-        return self.model_copy(update=update_data)
+        return replace(self, **update_data)
 
     def to_dict(self) -> dict:
         """Convert to dictionary."""
-        return self.model_dump()
+        return asdict(self)
 
     @classmethod
     def from_dict(cls, data: dict) -> "Task":
