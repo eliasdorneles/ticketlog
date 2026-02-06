@@ -10,6 +10,7 @@ from .commands.close import close_tasks
 from .commands.ready import ready_tasks
 from .commands.clean import clean_log
 from .commands.dep import add_dependency, remove_dependency, list_dependencies
+from .commands.import_beads import import_from_beads
 
 
 def main():
@@ -100,6 +101,17 @@ def main():
     clean_parser = subparsers.add_parser("clean", help="Deduplicate the log file")
     clean_parser.add_argument("--json", action="store_true", help="Output as JSON")
 
+    # Import command
+    import_parser = subparsers.add_parser("import", help="Import tasks from other formats")
+    import_subparsers = import_parser.add_subparsers(dest="import_format", help="Format to import from")
+
+    # import beads
+    import_beads_parser = import_subparsers.add_parser("beads", help="Import from beads JsonLines")
+    import_beads_parser.add_argument("filepath", help="Path to beads issues.jsonl file")
+    import_beads_parser.add_argument("--dry-run", action="store_true",
+                                      help="Show what would be imported without writing")
+    import_beads_parser.add_argument("--json", action="store_true", help="Output as JSON")
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -133,6 +145,12 @@ def main():
                 remove_dependency(args)
             elif args.dep_command == "list":
                 list_dependencies(args)
+        elif args.command == "import":
+            if not args.import_format:
+                import_parser.print_help()
+                sys.exit(1)
+            if args.import_format == "beads":
+                import_from_beads(args)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
