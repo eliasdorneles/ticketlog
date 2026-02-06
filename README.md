@@ -1,16 +1,32 @@
 # Ticketlog
 
-Lightweight task/issue tracking tool with JSON Lines storage. No daemon, no database - all operations in-memory.
+Lightweight task/issue tracking tool
+
+No daemon, no database - all operations done in-memory, then persisted into a JSON Lines storage.
+
+## Why?
+
+This is heavily inspired by [beads](https://github.com/steveyegge/beads).
+
+I tried `beads`, found it a bit too much for my needs and with weird failure modes.
+So I decided to make my own version of it, using the JSON Lines as a log file storing everything.
 
 ## Installation
 
 ```bash
-cd ticketlog
-uv sync
-uv pip install -e .
+uv tool install ticketlog
 ```
 
 This installs the `tl` command.
+
+## Features
+
+- **Condensed Output**: Clean, readable list format without heavy dependencies
+- **Smart IDs**: 3-letter alphanumeric IDs with configurable prefix
+- **Deduplication**: Built-in clean command to dedupe the log file
+- **Dependency Tracking**: Manage task dependencies and find ready-to-work tasks
+- **JSON Support**: All commands support `--json` flag for scripting
+- **Import Support**: Import tasks from beads JsonLines format
 
 ## Usage
 
@@ -47,34 +63,50 @@ tl list --label documentation
 ### Show task details
 
 ```bash
-tl show tl-1
+tl show tl-ab1
 ```
 
 ### Update a task
 
 ```bash
 # Change status
-tl update tl-1 --status in_progress
+tl update tl-a1b --status in_progress
 
 # Update multiple fields
-tl update tl-1 --title "New title" --priority P1 --assignee bob
+tl update tl-a1b --title "New title" --priority P1 --assignee bob
 
 # Add/remove labels
-tl update tl-1 --add-label urgent --add-label frontend
-tl update tl-1 --remove-label old-label
+tl update tl-a1b --add-label urgent --add-label frontend
+tl update tl-a1b --remove-label old-label
 
 # Add notes
-tl update tl-1 --notes "Working on this, needs API changes"
+tl update tl-a1b --notes "Working on this, needs API changes"
 ```
 
 ### Close tasks
 
 ```bash
 # Close single task
-tl close tl-1
+tl close tl-a1b
 
 # Close multiple tasks
-tl close tl-1 tl-2 tl-3
+tl close tl-a1b tl-bca tl-zyx
+```
+
+### Import from beads JsonLines
+
+Import tasks from a beads-format JsonLines file:
+
+```bash
+tl import beads tasks.jsonl
+```
+
+### Clean and deduplicate log
+
+Remove duplicate entries from the ticketlog file:
+
+```bash
+tl clean
 ```
 
 ### Show tasks ready to work on
@@ -88,14 +120,14 @@ tl ready
 ### Manage dependencies
 
 ```bash
-# Add dependency (tl-4 depends on tl-3, i.e., tl-3 blocks tl-4)
-tl dep add tl-4 tl-3
+# Add dependency (tl-fds depends on tl-zyx, i.e., tl-zyx blocks tl-fds)
+tl dep add tl-fds tl-zyx
 
 # Remove dependency
-tl dep remove tl-4 tl-3
+tl dep remove tl-fds tl-zyx
 
 # List dependencies for a task
-tl dep list tl-4
+tl dep list tl-fds
 ```
 
 ### JSON output
@@ -104,7 +136,7 @@ All commands support `--json` flag for machine-readable output:
 
 ```bash
 tl list --json | jq .
-tl show tl-1 --json
+tl show tl-a1b --json
 tl create "New task" --json
 ```
 
@@ -113,7 +145,8 @@ tl create "New task" --json
 Tasks are stored in `ticketlog.jsonl` (JSON Lines format) in the current directory.
 
 Each task has:
-- `id`: Auto-incrementing ID (tl-1, tl-2, ...)
+
+- `id`: Generated ID with configurable prefix and 3-letter alphanumeric code (e.g., tl-a1b, tl-xyz)
 - `title`: Task title
 - `description`: Detailed description
 - `type`: task, bug, feature, epic, or chore
@@ -135,6 +168,18 @@ Each task has:
 
 Accept both formats: `--priority 0` or `--priority P0`
 
+## Configuration
+
+You can customize ticketlog behavior with a `.ticketlog` configuration file in your project directory:
+
+```json
+{
+  "id_prefix": "tl"
+}
+```
+
+This allows you to customize the prefix used in ticket IDs (e.g., change from `tl-a1b` to `proj-abc`).
+
 ## File Format
 
 Tasks are stored in append-only JSON Lines format:
@@ -153,21 +198,21 @@ tl create "Write tests" --type task --priority 2
 tl create "Deploy to staging" --type task --priority 2
 
 # Set up dependencies
-tl dep add tl-2 tl-1  # Implementation depends on design
-tl dep add tl-3 tl-2  # Tests depend on implementation
-tl dep add tl-4 tl-3  # Deploy depends on tests
+tl dep add tl-bca tl-a1b  # Implementation depends on design
+tl dep add tl-zyx tl-bca  # Tests depend on implementation
+tl dep add tl-fds tl-zyx  # Deploy depends on tests
 
 # Check what's ready to work on
-tl ready  # Shows tl-1 (Design API)
+tl ready  # Shows tl-a1b (Design API)
 
 # Start working on it
-tl update tl-1 --status in_progress --assignee alice
+tl update tl-a1b --status in_progress --assignee alice
 
 # Complete it
-tl close tl-1
+tl close tl-a1b
 
 # Check again
-tl ready  # Now shows tl-2 (Implement API)
+tl ready  # Now shows tl-bca (Implement API)
 ```
 
 ## Development
@@ -192,7 +237,9 @@ ticketlog/
             ├── update.py
             ├── close.py
             ├── ready.py
-            └── dep.py
+            ├── dep.py
+            ├── import_cmd.py
+            └── clean.py
 ```
 
 ## License
