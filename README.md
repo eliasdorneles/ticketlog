@@ -14,10 +14,17 @@ So I decided to make my own version of it, using the JSON Lines as a log file st
 ## Installation
 
 ```bash
-uv tool install ticketlog
+pip install ticketlog
 ```
 
 This installs the `tl` command.
+
+
+Alternatively, if you use [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv tool install tl
+```
 
 ## Features
 
