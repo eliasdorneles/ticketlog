@@ -23,7 +23,7 @@ This installs the `tl` command.
 Alternatively, if you use [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install tl
+uv tool install ticketlog
 ```
 
 ## Features
