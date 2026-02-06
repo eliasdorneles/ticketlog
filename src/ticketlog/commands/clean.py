@@ -47,7 +47,7 @@ def clean_log(args) -> None:
     temp_fd, temp_path = tempfile.mkstemp(
         dir=storage.filepath.parent,
         prefix=".ticketlog_tmp_",
-        suffix=".jl"
+        suffix=".jsonl"
     )
 
     try:
