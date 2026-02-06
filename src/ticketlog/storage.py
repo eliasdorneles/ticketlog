@@ -12,7 +12,7 @@ from .config import Config
 class Storage:
     """Manages task storage in JSON Lines format."""
 
-    def __init__(self, filepath: str = "ticketlog.jl", config: Optional[Config] = None):
+    def __init__(self, filepath: str = "ticketlog.jsonl", config: Optional[Config] = None):
         self.filepath = Path(filepath)
         self.config = config or Config()
 

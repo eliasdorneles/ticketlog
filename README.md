@@ -110,7 +110,7 @@ tl create "New task" --json
 
 ## Data Model
 
-Tasks are stored in `ticketlog.jl` (JSON Lines format) in the current directory.
+Tasks are stored in `ticketlog.jsonl` (JSON Lines format) in the current directory.
 
 Each task has:
 - `id`: Auto-incrementing ID (tl-1, tl-2, ...)
