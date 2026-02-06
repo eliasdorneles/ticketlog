@@ -37,6 +37,16 @@ uv tool install tl
 
 ## Usage
 
+
+```bash
+tl init    #  initialize a .ticketlog.toml config file
+
+# or, use a custom prefix:
+tl init --prefix myproj
+```
+
+The prefix is auto-generated from the project directory name by default.
+
 ### Create a task
 
 ```bash
@@ -49,7 +59,7 @@ tl create "Write docs" --type chore --labels "documentation,help-wanted"
 
 ```bash
 # Default: show open and in_progress tasks
-tl list
+tl list   # or use the alias: tl ls
 
 # Show all tasks
 tl list --all
@@ -177,15 +187,21 @@ Accept both formats: `--priority 0` or `--priority P0`
 
 ## Configuration
 
-You can customize ticketlog behavior with a `.ticketlog` configuration file in your project directory:
+You can customize ticketlog behavior with a `.ticketlog.toml` configuration file in your project directory. Use `tl init` to create one automatically, or create it manually:
 
-```json
-{
-  "id_prefix": "tl"
-}
+```toml
+[project]
+# Prefix for ticket IDs
+# New tickets will have format: {prefix}-{3-letter-random-id}
+prefix = "myproj"
 ```
 
-This allows you to customize the prefix used in ticket IDs (e.g., change from `tl-a1b` to `proj-abc`).
+This allows you to customize the prefix used in ticket IDs (e.g., change from `tl-a1b` to `myproj-abc`).
+
+The configuration file can be placed at:
+- Your git repository root (automatically detected)
+- Any parent directory (walks up the tree to find config)
+- The current directory
 
 ## File Format
 
@@ -198,6 +214,9 @@ Tasks are stored in append-only JSON Lines format:
 ## Examples
 
 ```bash
+# Initialize project with custom prefix
+tl init --prefix api
+
 # Create project tasks
 tl create "Design API" --type feature --priority 1
 tl create "Implement API" --type feature --priority 1
@@ -205,21 +224,21 @@ tl create "Write tests" --type task --priority 2
 tl create "Deploy to staging" --type task --priority 2
 
 # Set up dependencies
-tl dep add tl-bca tl-a1b  # Implementation depends on design
-tl dep add tl-zyx tl-bca  # Tests depend on implementation
-tl dep add tl-fds tl-zyx  # Deploy depends on tests
+tl dep add api-bca api-a1b  # Implementation depends on design
+tl dep add api-zyx api-bca  # Tests depend on implementation
+tl dep add api-fds api-zyx  # Deploy depends on tests
 
 # Check what's ready to work on
-tl ready  # Shows tl-a1b (Design API)
+tl ready  # Shows api-a1b (Design API)
 
 # Start working on it
-tl update tl-a1b --status in_progress --assignee alice
+tl update api-a1b --status in_progress --assignee alice
 
 # Complete it
-tl close tl-a1b
+tl close api-a1b
 
 # Check again
-tl ready  # Now shows tl-bca (Implement API)
+tl ready  # Now shows api-bca (Implement API)
 ```
 
 ## Development
@@ -234,18 +253,21 @@ ticketlog/
         ├── __init__.py
         ├── __main__.py
         ├── cli.py          # CLI argument parsing
+        ├── config.py       # Configuration management
         ├── models.py       # Task data model
         ├── storage.py      # JSON Lines storage
         ├── utils.py        # Formatting helpers
         └── commands/       # Command implementations
+            ├── init.py
             ├── create.py
             ├── list.py
             ├── show.py
             ├── update.py
             ├── close.py
             ├── ready.py
+            ├── start.py
             ├── dep.py
-            ├── import_cmd.py
+            ├── import_beads.py
             └── clean.py
 ```
 

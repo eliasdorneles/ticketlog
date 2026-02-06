@@ -12,6 +12,7 @@ from .commands.clean import clean_log
 from .commands.dep import add_dependency, remove_dependency, list_dependencies
 from .commands.import_beads import import_from_beads
 from .commands.start import start_task
+from .commands.init import init_config
 
 
 # Status shortcuts mapping
@@ -183,6 +184,12 @@ def main():
                                       help="Show what would be imported without writing")
     import_beads_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
 
+    # Init command
+    init_parser = subparsers.add_parser("init", help="Initialize .ticketlog.toml configuration file")
+    init_parser.add_argument("--prefix", help="Prefix for ticket IDs (default: auto-derived from directory name)")
+    init_parser.add_argument("--force", action="store_true", help="Overwrite existing configuration file")
+    init_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -238,6 +245,8 @@ def main():
                 sys.exit(1)
             if args.import_format == "beads":
                 import_from_beads(args)
+        elif args.command == "init":
+            init_config(args)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
