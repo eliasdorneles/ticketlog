@@ -1,0 +1,8 @@
+# Ticketlog Configuration
+# https://github.com/eliasdorneles/ticketlog
+
+[project]
+# Prefix for ticket IDs (default: "tl")
+# New tickets will have format: {prefix}-{3-letter-random-id}
+# Example: tl-a3f, tl-x9k
+prefix = "tl"

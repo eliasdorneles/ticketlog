@@ -1,17 +1,20 @@
 """JSON Lines storage for tasks."""
 
 import json
+import random
+import string
 from pathlib import Path
 from typing import Optional
 from .models import Task
+from .config import Config
 
 
 class Storage:
     """Manages task storage in JSON Lines format."""
 
-    def __init__(self, filepath: str = "ticketlog.jl"):
+    def __init__(self, filepath: str = "ticketlog.jl", config: Optional[Config] = None):
         self.filepath = Path(filepath)
-        self._next_id: Optional[int] = None
+        self.config = config or Config()
 
     def load_tasks(self) -> list[Task]:
         """Load tasks from JSON Lines file, keeping only the latest version of each task."""
@@ -19,7 +22,6 @@ class Storage:
             return []
 
         tasks_by_id = {}
-        max_id = 0
 
         with open(self.filepath, "r") as f:
             for line in f:
@@ -31,15 +33,6 @@ class Storage:
                 task = Task.from_dict(data)
                 tasks_by_id[task.id] = task
 
-                # Track max ID for next ID generation
-                if task.id.startswith("tl-"):
-                    try:
-                        task_num = int(task.id.split("-")[1])
-                        max_id = max(max_id, task_num)
-                    except (IndexError, ValueError):
-                        pass
-
-        self._next_id = max_id + 1
         return list(tasks_by_id.values())
 
     def save_task(self, task: Task) -> None:
@@ -47,17 +40,39 @@ class Storage:
         with open(self.filepath, "a") as f:
             f.write(json.dumps(task.to_dict()) + "\n")
 
-    def get_next_id(self) -> str:
-        """Generate next task ID."""
-        if self._next_id is None:
-            # Load tasks to initialize next_id
-            self.load_tasks()
-            if self._next_id is None:
-                self._next_id = 1
+    def _generate_random_id(self, existing_ids: set[str]) -> str:
+        """Generate random 3-letter alphanumeric ID.
 
-        task_id = f"tl-{self._next_id}"
-        self._next_id += 1
-        return task_id
+        Args:
+            existing_ids: Set of existing task IDs to avoid collisions
+
+        Returns:
+            New unique task ID
+
+        Raises:
+            ValueError: If unable to generate unique ID after 10 attempts
+        """
+        chars = string.ascii_lowercase + string.digits
+
+        for _ in range(10):
+            suffix = "".join(random.choices(chars, k=3))
+            task_id = f"{self.config.prefix}-{suffix}"
+            if task_id not in existing_ids:
+                return task_id
+
+        raise ValueError(
+            f"Failed to generate unique ID with prefix '{self.config.prefix}' after 10 attempts"
+        )
+
+    def get_next_id(self) -> str:
+        """Generate next task ID using random 3-letter suffix.
+
+        Returns:
+            New unique task ID
+        """
+        tasks = self.load_tasks()
+        existing_ids = {task.id for task in tasks}
+        return self._generate_random_id(existing_ids)
 
     def get_task_by_id(self, task_id: str) -> Optional[Task]:
         """Find a task by ID."""

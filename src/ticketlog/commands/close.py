@@ -1,12 +1,14 @@
 """Close command implementation."""
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import print_json, colorize, RED, GREEN
 
 
 def close_tasks(args) -> None:
     """Close one or more tasks."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     closed = []
 
     for task_id in args.ids:

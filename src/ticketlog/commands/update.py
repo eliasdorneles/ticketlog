@@ -1,12 +1,14 @@
 """Update command implementation."""
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import print_json, parse_priority, colorize, RED, GREEN
 
 
 def update_task(args) -> None:
     """Update a task."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     task = storage.get_task_by_id(args.id)
 
     if not task:

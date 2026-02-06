@@ -2,12 +2,14 @@
 
 from ..models import Task
 from ..storage import Storage
+from ..config import Config
 from ..utils import print_json, parse_priority, colorize, GREEN
 
 
 def create_task(args) -> None:
     """Create a new task."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
 
     # Parse labels if provided
     labels = []

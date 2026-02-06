@@ -1,6 +1,7 @@
 """Dependency command implementation."""
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import print_json, colorize, bold, dim, RED, GREEN, YELLOW, CYAN
 
 
@@ -37,7 +38,8 @@ def detect_cycle(task_id: str, depends_on: str, all_tasks: list) -> bool:
 
 def add_dependency(args) -> None:
     """Add a dependency between tasks."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
 
     task = storage.get_task_by_id(args.task_id)
     depends_on = storage.get_task_by_id(args.depends_on_id)
@@ -72,7 +74,8 @@ def add_dependency(args) -> None:
 
 def remove_dependency(args) -> None:
     """Remove a dependency between tasks."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     task = storage.get_task_by_id(args.task_id)
 
     if not task:
@@ -95,7 +98,8 @@ def remove_dependency(args) -> None:
 
 def list_dependencies(args) -> None:
     """List dependencies for a task."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     task = storage.get_task_by_id(args.task_id)
 
     if not task:

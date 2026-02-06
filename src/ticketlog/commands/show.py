@@ -1,12 +1,14 @@
 """Show command implementation."""
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import format_task_detail, print_json, colorize, RED
 
 
 def show_task(args) -> None:
     """Show detailed task information."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     task = storage.get_task_by_id(args.id)
 
     if not task:

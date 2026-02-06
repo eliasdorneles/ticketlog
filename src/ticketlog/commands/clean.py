@@ -5,12 +5,14 @@ import os
 import tempfile
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import colorize, print_json, GREEN, YELLOW
 
 
 def clean_log(args) -> None:
     """Deduplicate the log file by keeping only the latest version of each task."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
 
     # Load all tasks (already deduplicates in memory)
     tasks = storage.load_tasks()

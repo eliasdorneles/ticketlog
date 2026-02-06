@@ -1,12 +1,14 @@
 """List command implementation."""
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import format_table, print_json
 
 
 def list_tasks(args) -> None:
     """List tasks with optional filtering."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     tasks = storage.get_all_tasks()
 
     # Apply filters

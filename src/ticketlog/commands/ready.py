@@ -1,12 +1,14 @@
 """Ready command implementation."""
 
 from ..storage import Storage
+from ..config import Config
 from ..utils import format_table, print_json
 
 
 def ready_tasks(args) -> None:
     """Show tasks ready to work on (no unresolved dependencies)."""
-    storage = Storage()
+    config = Config.load()
+    storage = Storage(config=config)
     all_tasks = storage.get_all_tasks()
 
     # Build a set of closed task IDs
