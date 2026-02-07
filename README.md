@@ -58,7 +58,7 @@ tl create "Write docs" --type chore --labels "documentation,help-wanted"
 ### List tasks
 
 ```bash
-# Default: show open and in_progress tasks
+# Default: show open, in_progress and to_review tasks
 tl list   # or use the alias: tl ls
 
 # Show all tasks

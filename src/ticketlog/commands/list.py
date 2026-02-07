@@ -15,8 +15,8 @@ def list_tasks(args) -> None:
     if args.status:
         tasks = [t for t in tasks if t.status == args.status]
     elif not args.all:
-        # Default: show open and in_progress tasks
-        tasks = [t for t in tasks if t.status in ("open", "in_progress")]
+        # Default: show open, in_progress and to_review tasks
+        tasks = [t for t in tasks if t.status in ("open", "in_progress", "to_review")]
 
     if args.type:
         tasks = [t for t in tasks if t.type == args.type]
