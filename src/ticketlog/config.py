@@ -20,6 +20,7 @@ class Config:
     """Configuration settings for ticketlog."""
 
     prefix: str = "tl"
+    dead_history_threshold: float = 0.3
 
     @classmethod
     def load(cls, start_path: Optional[Path] = None) -> "Config":
@@ -73,7 +74,10 @@ class Config:
             data = tomllib.load(f)
 
         project_config = data.get("project", {})
-        return cls(prefix=project_config.get("prefix", "tl"))
+        return cls(
+            prefix=project_config.get("prefix", "tl"),
+            dead_history_threshold=project_config.get("dead_history_threshold", 0.3),
+        )
 
 
 def find_git_root(path: Path) -> Optional[Path]:

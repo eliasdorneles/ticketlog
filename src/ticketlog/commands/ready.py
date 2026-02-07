@@ -31,4 +31,5 @@ def ready_tasks(args) -> None:
     if args.json:
         print_json([t.to_dict() for t in ready])
     else:
+        storage.check_dead_history()
         format_table(ready)

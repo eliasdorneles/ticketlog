@@ -32,6 +32,7 @@ def start_task(args) -> None:
     if args.json:
         print_json(updated_task.to_dict())
     else:
+        storage.check_dead_history()
         msg = f"Started task {updated_task.id}"
         if args.assignee:
             msg += f" (assigned to {args.assignee})"

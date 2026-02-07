@@ -3,10 +3,12 @@
 import json
 import random
 import string
+import sys
 from pathlib import Path
 from typing import Optional
 from .models import Task
 from .config import Config
+from .utils import colorize, YELLOW
 
 
 class Storage:
@@ -15,13 +17,19 @@ class Storage:
     def __init__(self, filepath: str = "ticketlog.jsonl", config: Optional[Config] = None):
         self.filepath = Path(filepath)
         self.config = config or Config()
+        self._total_lines = 0
+        self._unique_count = 0
+        self._dead_history_warned = False
 
     def load_tasks(self) -> list[Task]:
         """Load tasks from JSON Lines file, keeping only the latest version of each task."""
         if not self.filepath.exists():
+            self._total_lines = 0
+            self._unique_count = 0
             return []
 
         tasks_by_id = {}
+        total_lines = 0
 
         with open(self.filepath, "r") as f:
             for line in f:
@@ -29,11 +37,38 @@ class Storage:
                 if not line:
                     continue
 
+                total_lines += 1
                 data = json.loads(line)
                 task = Task.from_dict(data)
                 tasks_by_id[task.id] = task
 
+        self._total_lines = total_lines
+        self._unique_count = len(tasks_by_id)
+
         return list(tasks_by_id.values())
+
+    @property
+    def dead_history_ratio(self) -> float:
+        """Ratio of dead (duplicate) lines to total lines."""
+        if self._total_lines == 0:
+            return 0.0
+        return (self._total_lines - self._unique_count) / self._total_lines
+
+    def check_dead_history(self) -> None:
+        """Print a warning to stderr if dead history exceeds the configured threshold."""
+        if self._dead_history_warned:
+            return
+        ratio = self.dead_history_ratio
+        if ratio > self.config.dead_history_threshold:
+            self._dead_history_warned = True
+            pct = ratio * 100
+            threshold_pct = self.config.dead_history_threshold * 100
+            msg = (
+                f"\u26a0 {pct:.1f}% of the log is dead history "
+                f"(threshold: {threshold_pct:.0f}%). "
+                f"Run 'tl clean' to compact."
+            )
+            print(colorize(msg, YELLOW), file=sys.stderr)
 
     def save_task(self, task: Task) -> None:
         """Append task to JSON Lines file."""

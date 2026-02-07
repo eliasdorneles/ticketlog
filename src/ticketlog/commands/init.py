@@ -18,6 +18,9 @@ TOML_TEMPLATE = """# Ticketlog Configuration
 # New tickets will have format: {{prefix}}-{{3-letter-random-id}}
 # Example: myc-a3f, tic-x9k
 prefix = "{prefix}"
+
+# Warn when dead history exceeds this ratio (0.0 to 1.0)
+# dead_history_threshold = 0.3
 """
 
 

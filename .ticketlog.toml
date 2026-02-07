@@ -6,3 +6,4 @@
 # New tickets will have format: {prefix}-{3-letter-random-id}
 # Example: tl-a3f, tl-x9k
 prefix = "tl"
+dead_history_threshold = 0.3

@@ -19,4 +19,5 @@ def show_task(args) -> None:
     if args.json:
         print_json(task.to_dict())
     else:
+        storage.check_dead_history()
         format_task_detail(task)
