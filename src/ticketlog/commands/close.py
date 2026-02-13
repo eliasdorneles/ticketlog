@@ -11,14 +11,36 @@ def close_tasks(args) -> None:
     storage = Storage(config=config)
     closed = []
 
-    for task_id in args.ids:
-        task = storage.get_task_by_id(task_id)
+    # Validate mutually exclusive options
+    if args.all_review and args.ids:
+        print(colorize("Error: Cannot specify both --all-review and specific task IDs", RED))
+        return
 
-        if not task:
-            print(colorize(f"Error: Task {task_id} not found", RED))
-            continue
+    if not args.all_review and not args.ids:
+        print(colorize("Error: Must specify either --all-review or at least one task ID", RED))
+        return
 
-        # Update to closed status
+    # Determine which tasks to close
+    if args.all_review:
+        # Get all tasks in to_review status
+        all_tasks = storage.get_all_tasks()
+        tasks_to_close = [t for t in all_tasks if t.status == "to_review"]
+        
+        if not tasks_to_close:
+            print(colorize("No tasks found in to_review status", RED))
+            return
+    else:
+        # Close specific tasks by ID
+        tasks_to_close = []
+        for task_id in args.ids:
+            task = storage.get_task_by_id(task_id)
+            if not task:
+                print(colorize(f"Error: Task {task_id} not found", RED))
+                continue
+            tasks_to_close.append(task)
+
+    # Close the tasks
+    for task in tasks_to_close:
         updated_task = task.update_fields(status="closed")
         storage.save_task(updated_task)
         closed.append(updated_task)

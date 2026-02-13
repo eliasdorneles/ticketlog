@@ -108,6 +108,9 @@ tl close tl-a1b
 
 # Close multiple tasks
 tl close tl-a1b tl-bca tl-zyx
+
+# Close all tasks in to_review status
+tl close --all-review
 ```
 
 ### Import from beads JsonLines
