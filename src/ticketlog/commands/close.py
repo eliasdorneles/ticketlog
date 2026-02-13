@@ -12,16 +12,16 @@ def close_tasks(args) -> None:
     closed = []
 
     # Validate mutually exclusive options
-    if args.all_review and args.ids:
-        print(colorize("Error: Cannot specify both --all-review and specific task IDs", RED))
+    if args.review and args.ids:
+        print(colorize("Error: Cannot specify both --review and specific task IDs", RED))
         return
 
-    if not args.all_review and not args.ids:
-        print(colorize("Error: Must specify either --all-review or at least one task ID", RED))
+    if not args.review and not args.ids:
+        print(colorize("Error: Must specify either --review or at least one task ID", RED))
         return
 
     # Determine which tasks to close
-    if args.all_review:
+    if args.review:
         # Get all tasks in to_review status
         all_tasks = storage.get_all_tasks()
         tasks_to_close = [t for t in all_tasks if t.status == "to_review"]

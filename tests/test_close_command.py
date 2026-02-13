@@ -45,7 +45,7 @@ class TestCloseSpecificTasks:
         storage, filepath = tmp_storage
         
         # Close a specific task
-        args = Namespace(ids=["test-001"], all_review=False, json=False)
+        args = Namespace(ids=["test-001"], review=False, json=False)
         close_tasks(args)
         
         # Verify task was closed
@@ -61,7 +61,7 @@ class TestCloseSpecificTasks:
         storage, filepath = tmp_storage
         
         # Close multiple tasks
-        args = Namespace(ids=["test-001", "test-002"], all_review=False, json=False)
+        args = Namespace(ids=["test-001", "test-002"], review=False, json=False)
         close_tasks(args)
         
         # Verify tasks were closed
@@ -79,7 +79,7 @@ class TestCloseSpecificTasks:
         storage, filepath = tmp_storage
         
         # Try to close nonexistent task
-        args = Namespace(ids=["test-999"], all_review=False, json=False)
+        args = Namespace(ids=["test-999"], review=False, json=False)
         close_tasks(args)
         
         # Check error message
@@ -87,14 +87,14 @@ class TestCloseSpecificTasks:
         assert "Error: Task test-999 not found" in captured.out
 
 
-class TestCloseAllReview:
+class TestCloseReview:
     """Test closing all tasks in to_review status."""
     
-    def test_close_all_review_tasks(self, tmp_storage, capsys):
+    def test_close_review_tasks(self, tmp_storage, capsys):
         storage, filepath = tmp_storage
         
         # Close all to_review tasks
-        args = Namespace(ids=[], all_review=True, json=False)
+        args = Namespace(ids=[], review=True, json=False)
         close_tasks(args)
         
         # Verify all to_review tasks were closed
@@ -117,7 +117,7 @@ class TestCloseAllReview:
         captured = capsys.readouterr()
         assert "Closed 3 tasks" in captured.out
     
-    def test_close_all_review_no_tasks(self, tmp_path, monkeypatch, capsys):
+    def test_close_review_no_tasks(self, tmp_path, monkeypatch, capsys):
         # Change to temp directory
         monkeypatch.chdir(tmp_path)
         
@@ -135,18 +135,18 @@ class TestCloseAllReview:
             storage.save_task(task)
         
         # Try to close all to_review tasks
-        args = Namespace(ids=[], all_review=True, json=False)
+        args = Namespace(ids=[], review=True, json=False)
         close_tasks(args)
         
         # Check error message
         captured = capsys.readouterr()
         assert "No tasks found in to_review status" in captured.out
     
-    def test_close_all_review_json_output(self, tmp_storage, capsys):
+    def test_close_review_json_output(self, tmp_storage, capsys):
         storage, filepath = tmp_storage
         
         # Close all to_review tasks with JSON output
-        args = Namespace(ids=[], all_review=True, json=True)
+        args = Namespace(ids=[], review=True, json=True)
         close_tasks(args)
         
         # Check JSON output
@@ -159,18 +159,18 @@ class TestCloseAllReview:
 
 
 class TestMutuallyExclusiveOptions:
-    """Test that --all-review and specific IDs are mutually exclusive."""
+    """Test that --review and specific IDs are mutually exclusive."""
     
-    def test_cannot_use_both_all_review_and_ids(self, tmp_storage, capsys):
+    def test_cannot_use_both_review_and_ids(self, tmp_storage, capsys):
         storage, filepath = tmp_storage
         
         # Try to use both options
-        args = Namespace(ids=["test-001"], all_review=True, json=False)
+        args = Namespace(ids=["test-001"], review=True, json=False)
         close_tasks(args)
         
         # Check error message
         captured = capsys.readouterr()
-        assert "Cannot specify both --all-review and specific task IDs" in captured.out
+        assert "Cannot specify both --review and specific task IDs" in captured.out
         
         # Verify no tasks were closed
         storage_reload = Storage(filepath=str(filepath), config=Config(prefix="test"))
@@ -181,9 +181,9 @@ class TestMutuallyExclusiveOptions:
         storage, filepath = tmp_storage
         
         # Try to use neither option
-        args = Namespace(ids=[], all_review=False, json=False)
+        args = Namespace(ids=[], review=False, json=False)
         close_tasks(args)
         
         # Check error message
         captured = capsys.readouterr()
-        assert "Must specify either --all-review or at least one task ID" in captured.out
+        assert "Must specify either --review or at least one task ID" in captured.out
