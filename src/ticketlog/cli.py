@@ -117,7 +117,8 @@ def main():
 
     # Close command (aliases: done, rm)
     close_parser = subparsers.add_parser("close", aliases=["done", "rm"], help="Close one or more tasks")
-    close_parser.add_argument("ids", nargs="+", help="Task ID(s) to close")
+    close_parser.add_argument("ids", nargs="*", help="Task ID(s) to close")
+    close_parser.add_argument("--review", action="store_true", help="Close all tasks in to_review status")
     close_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
 
     # Ready command
