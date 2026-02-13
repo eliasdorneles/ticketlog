@@ -2,7 +2,7 @@
 
 from ..storage import Storage
 from ..config import Config
-from ..utils import print_json, colorize, RED, GREEN
+from ..utils import print_json, colorize, RED, GREEN, YELLOW
 
 
 def close_tasks(args) -> None:
@@ -27,7 +27,7 @@ def close_tasks(args) -> None:
         tasks_to_close = [t for t in all_tasks if t.status == "to_review"]
         
         if not tasks_to_close:
-            print(colorize("No tasks found in to_review status", RED))
+            print(colorize("No tasks found in to_review status", YELLOW))
             return
     else:
         # Close specific tasks by ID
