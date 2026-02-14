@@ -7,6 +7,7 @@ from .commands.list import list_tasks
 from .commands.show import show_task
 from .commands.update import update_task
 from .commands.close import close_tasks
+from .commands.cancel import cancel_tasks
 from .commands.ready import ready_tasks
 from .commands.clean import clean_log
 from .commands.dep import add_dependency, remove_dependency, list_dependencies
@@ -121,6 +122,12 @@ def main():
     close_parser.add_argument("--review", action="store_true", help="Close all tasks in to_review status")
     close_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
 
+    # Cancel command
+    cancel_parser = subparsers.add_parser("cancel", help="Cancel one or more tasks (close with cancel note)")
+    cancel_parser.add_argument("ids", nargs="+", help="Task ID(s) to cancel")
+    cancel_parser.add_argument("--reason", help="Reason for cancellation")
+    cancel_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
+
     # Ready command
     ready_parser = subparsers.add_parser("ready", help="Show tasks ready to work on")
     ready_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
@@ -216,6 +223,8 @@ def main():
             update_task(args)
         elif args.command in ("close", "done", "rm"):
             close_tasks(args)
+        elif args.command == "cancel":
+            cancel_tasks(args)
         elif args.command == "ready":
             ready_tasks(args)
         elif args.command == "start":
