@@ -2,7 +2,6 @@
 
 import argparse
 import sys
-from . import __version__
 from .commands.create import create_task
 from .commands.list import list_tasks
 from .commands.show import show_task
@@ -210,7 +209,7 @@ def main():
 
     # Handle --version flag
     if args.version:
-        print(f"ticketlog {__version__}")
+        show_version(argparse.Namespace(json=False))
         sys.exit(0)
 
     if not args.command:
