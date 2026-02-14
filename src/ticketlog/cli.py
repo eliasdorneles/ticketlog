@@ -70,6 +70,7 @@ def main():
         prog="tl"
     )
     parser.add_argument("--version", action="store_true", help="Show version number")
+    parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -209,7 +210,7 @@ def main():
 
     # Handle --version flag
     if args.version:
-        show_version(argparse.Namespace(json=False))
+        show_version(argparse.Namespace(json=args.json))
         sys.exit(0)
 
     if not args.command:

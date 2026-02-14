@@ -7,6 +7,7 @@ import pytest
 
 from ticketlog import __version__
 from ticketlog.commands.version import show_version
+from ticketlog.cli import main
 
 
 class TestVersionCommand:
