@@ -1,6 +1,6 @@
 [project]
 name = "ticketlog"
-version = "0.3.0"
+version = "0.4.0"
 description = "Lightweight task/issue tracking tool with JSON Lines storage"
 readme = "README.md"
 authors = [
