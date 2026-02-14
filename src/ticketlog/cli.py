@@ -2,6 +2,7 @@
 
 import argparse
 import sys
+from . import __version__
 from .commands.create import create_task
 from .commands.list import list_tasks
 from .commands.show import show_task
@@ -14,6 +15,7 @@ from .commands.dep import add_dependency, remove_dependency, list_dependencies
 from .commands.import_beads import import_from_beads
 from .commands.start import start_task
 from .commands.init import init_config
+from .commands.version import show_version
 
 
 # Status shortcuts mapping
@@ -68,6 +70,7 @@ def main():
         description="Lightweight task/issue tracking tool",
         prog="tl"
     )
+    parser.add_argument("--version", action="store_true", help="Show version number")
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -198,8 +201,17 @@ def main():
     init_parser.add_argument("--force", action="store_true", help="Overwrite existing configuration file")
     init_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
 
+    # Version command
+    version_parser = subparsers.add_parser("version", help="Show version number")
+    version_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
+
     # Parse arguments
     args = parser.parse_args()
+
+    # Handle --version flag
+    if args.version:
+        print(f"ticketlog {__version__}")
+        sys.exit(0)
 
     if not args.command:
         parser.print_help()
@@ -257,6 +269,8 @@ def main():
                 import_from_beads(args)
         elif args.command == "init":
             init_config(args)
+        elif args.command == "version":
+            show_version(args)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
