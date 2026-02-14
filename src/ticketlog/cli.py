@@ -124,8 +124,7 @@ def main():
 
     # Cancel command
     cancel_parser = subparsers.add_parser("cancel", help="Cancel one or more tasks (close with cancel note)")
-    cancel_parser.add_argument("ids", nargs="*", help="Task ID(s) to cancel")
-    cancel_parser.add_argument("--review", action="store_true", help="Cancel all tasks in to_review status")
+    cancel_parser.add_argument("ids", nargs="+", help="Task ID(s) to cancel")
     cancel_parser.add_argument("--reason", help="Reason for cancellation")
     cancel_parser.add_argument("-j", "--json", action="store_true", help="Output as JSON")
 
