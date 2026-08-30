@@ -21,6 +21,9 @@ prefix = "{prefix}"
 
 # Warn when dead history exceeds this ratio (0.0 to 1.0)
 # dead_history_threshold = 0.3
+
+# Only warn about dead history when the project has more tickets than this
+# dead_history_min_tickets = 100
 """
 
 

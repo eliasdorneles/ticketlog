@@ -21,6 +21,7 @@ class Config:
 
     prefix: str = "tl"
     dead_history_threshold: float = 0.3
+    dead_history_min_tickets: int = 100
 
     @classmethod
     def load(cls, start_path: Optional[Path] = None) -> "Config":
@@ -77,6 +78,7 @@ class Config:
         return cls(
             prefix=project_config.get("prefix", "tl"),
             dead_history_threshold=project_config.get("dead_history_threshold", 0.3),
+            dead_history_min_tickets=project_config.get("dead_history_min_tickets", 100),
         )
 
 

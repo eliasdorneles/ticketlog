@@ -16,9 +16,9 @@ def tmp_jsonl(tmp_path):
     """Return a helper that writes tasks to a temp JSONL file and returns a Storage."""
     filepath = tmp_path / "ticketlog.jsonl"
 
-    def _make_storage(lines, threshold=0.3):
+    def _make_storage(lines, threshold=0.3, min_tickets=0):
         filepath.write_text("".join(json.dumps(line) + "\n" for line in lines))
-        config = Config(dead_history_threshold=threshold)
+        config = Config(dead_history_threshold=threshold, dead_history_min_tickets=min_tickets)
         return Storage(filepath=str(filepath), config=config)
 
     return _make_storage
@@ -183,3 +183,69 @@ class TestConfigDeadHistoryThreshold:
         toml_file.write_text('[project]\nprefix = "xx"\n')
         config = Config.from_file(toml_file)
         assert config.dead_history_threshold == 0.3
+
+
+class TestDeadHistoryMinTickets:
+    def test_default_min_tickets(self):
+        config = Config()
+        assert config.dead_history_min_tickets == 100
+
+    def test_no_warning_when_below_min_tickets(self, tmp_jsonl, capsys):
+        storage = tmp_jsonl([
+            _task_dict("tl-001", title="v1"),
+            _task_dict("tl-001", title="v2"),
+            _task_dict("tl-001", title="v3"),
+            _task_dict("tl-001", title="v4"),
+        ], min_tickets=100)
+        storage.load_tasks()
+        # ratio = 3/4 > 0.3, but only 1 ticket ≤ min 100
+        storage.check_dead_history()
+
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_no_warning_at_exact_min_tickets(self, tmp_jsonl, capsys):
+        lines = [_task_dict(f"tl-{i:03d}") for i in range(100)]
+        lines.append(_task_dict("tl-000", title="v2"))
+        storage = tmp_jsonl(lines, threshold=0.0, min_tickets=100)
+        storage.load_tasks()
+        # 100 unique == min 100 → no warning even though ratio > threshold
+        assert storage._unique_count == 100
+        storage.check_dead_history()
+
+        captured = capsys.readouterr()
+        assert captured.err == ""
+
+    def test_warns_when_tickets_exceed_min(self, tmp_jsonl, capsys):
+        lines = [_task_dict(f"tl-{i:03d}") for i in range(101)]
+        lines.append(_task_dict("tl-000", title="v2"))
+        storage = tmp_jsonl(lines, threshold=0.0, min_tickets=100)
+        storage.load_tasks()
+        # 101 unique > min 100 and ratio = 1/102 > 0 → warning
+        storage.check_dead_history()
+
+        captured = capsys.readouterr()
+        assert "dead history" in captured.err
+
+    def test_zero_min_tickets_warns_on_small_log(self, tmp_jsonl, capsys):
+        storage = tmp_jsonl([
+            _task_dict("tl-001", title="v1"),
+            _task_dict("tl-001", title="v2"),
+        ], min_tickets=0)
+        storage.load_tasks()
+        storage.check_dead_history()
+
+        captured = capsys.readouterr()
+        assert "dead history" in captured.err
+
+    def test_from_file_reads_min_tickets(self, tmp_path):
+        toml_file = tmp_path / ".ticketlog.toml"
+        toml_file.write_text('[project]\nprefix = "xx"\ndead_history_min_tickets = 50\n')
+        config = Config.from_file(toml_file)
+        assert config.dead_history_min_tickets == 50
+
+    def test_from_file_default_when_min_tickets_missing(self, tmp_path):
+        toml_file = tmp_path / ".ticketlog.toml"
+        toml_file.write_text('[project]\nprefix = "xx"\n')
+        config = Config.from_file(toml_file)
+        assert config.dead_history_min_tickets == 100

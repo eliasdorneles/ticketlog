@@ -55,8 +55,14 @@ class Storage:
         return (self._total_lines - self._unique_count) / self._total_lines
 
     def check_dead_history(self) -> None:
-        """Print a warning to stderr if dead history exceeds the configured threshold."""
+        """Print a warning to stderr if dead history exceeds the configured threshold.
+
+        Only warns when the total number of tickets exceeds the configured
+        minimum (dead_history_min_tickets), to avoid noisy warnings on small logs.
+        """
         if self._dead_history_warned:
+            return
+        if self._unique_count <= self.config.dead_history_min_tickets:
             return
         ratio = self.dead_history_ratio
         if ratio > self.config.dead_history_threshold:
